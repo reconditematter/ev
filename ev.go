@@ -2,6 +2,7 @@ package ev
 
 import (
 	"os"
+	"strings"
 )
 
 // Value -- if an environment variable with the given
@@ -33,7 +34,7 @@ func Exists(name string) (exists bool) {
 
 // Set -- first Set clears an environment variable with the
 // given name, and then it defines a new environment variable
-// with the given name and value. Ir returns an error, if any.
+// with the given name and value. It returns an error, if any.
 func Set(name, value string) error {
 	return os.Setenv(name, value)
 }
@@ -47,4 +48,16 @@ func Clear(name string) {
 // ClearAll -- deletes all existing environment variables.
 func ClearAll() {
 	os.Clearenv()
+}
+
+// Iterate -- calls the given function for each existing environment
+// variable, passing the name and value of that environment variable.
+func Iterate(p func(name, value string)) {
+	envs := os.Environ()
+	for _, env := range envs {
+		k := strings.Index(env, "=")
+		if k > 0 && k < len(env)-1 {
+			p(env[:k], env[k+1:])
+		}
+	}
 }
